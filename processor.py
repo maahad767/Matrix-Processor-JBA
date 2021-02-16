@@ -4,6 +4,8 @@ def main():
               '2. Multiply matrix by a constant\n'
               '3. Multiply matrices\n'
               '4. Horizontal line\n'
+              '5. Calculate a determinant\n'
+              '6. Inverse matrix\n'
               '0. Exit')
 
         command = int(input("Your choice: "))
@@ -59,6 +61,25 @@ def main():
             result_matrix = transpose_matrix(matrix, direction)
             print_matrix(result_matrix)
 
+        elif command == 5:
+            rows, cols = tuple(int(x) for x in input("Enter size of matrix: ").split())
+            print("Enter matrix:")
+            matrix = take_matrix(rows)
+            result = determinant(matrix)
+            print(result)
+
+        elif command == 6:
+            rows, cols = tuple(int(x) for x in input("Enter size of matrix: ").split())
+            print("Enter matrix:")
+            matrix = take_matrix(rows)
+            det = determinant(matrix)
+            if det == 0:
+                print("This matrix doesn't have an inverse.")
+                continue
+            result_matrix = inverse_matrix(matrix)
+            print("here")
+            print_matrix(result_matrix)
+            print("printed")
         elif command == 0:
             exit()
 
@@ -130,6 +151,52 @@ def transpose_matrix(matrix, direction):
             result_matrix.insert(0, row)
 
     return result_matrix
+
+
+def determinant(matrix):
+    lengthM = len(matrix)
+    if lengthM == 1:
+        return matrix[0][0]
+    if lengthM == 2:
+        detM = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+        return detM
+
+    detM = 0
+    for i in range(lengthM):
+        sign = (-1) ** i
+        minor = []
+
+        for m in range(1, lengthM):
+            row = []
+            for n in range(lengthM):
+                if i != n:
+                    row.append(matrix[m][n])
+
+            minor.append(row)
+        detM += matrix[0][i] * sign * determinant(minor)
+
+    return detM
+
+
+def inverse_matrix(matrix):
+    result_matrix = []
+    lengthM = len(matrix)
+    for i, row in enumerate(matrix):
+        new_row = []
+        for j, col in enumerate(row):
+            sign = (-1) ** (i + j)
+            minor = []
+            for m in range(lengthM):
+                if m != i:
+                    row = []
+                    for n in range(lengthM):
+                        if j != n:
+                            row.append(matrix[m][n])
+                    minor.append(row)
+
+            new_row.append(sign * determinant(minor))
+        result_matrix.append(new_row)
+    return scalar_multiplication(transpose_matrix(result_matrix, 1), 1 / determinant(matrix))
 
 
 def print_matrix(mat):
